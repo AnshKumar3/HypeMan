@@ -28,7 +28,7 @@ wss.on('connection', (clientWs) => {
     // Send Initial Setup
     const setupMessage = {
       setup: {
-        model: "models/gemini-2.0-flash-exp", 
+        model: "models/gemini-3-flash-preview", 
         generation_config: {
           response_modalities: ["TEXT"],
           temperature: 0.2
