@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<body style="background: #111; color: #fff; text-align: center; font-family: sans-serif;">
+    <h1>HypeMan Input</h1>
+    <video id="webcam" autoplay playsinline width="640" height="480" style="border: 2px solid cyan;"></video>
+    <div id="status">Status: Connecting...</div>
+
+    <script>
+        const video = document.getElementById('webcam');
+        const status = document.getElementById('status');
+        const ws = new WebSocket('ws://localhost:8080');
+
+        navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+            video.srcObject = stream;
+        });
+
+        ws.onopen = () => status.innerText = "Status: Connected to Server";
+        
+        // Send a frame every 500ms (2 FPS)
+        setInterval(() => {
+            if (ws.readyState === WebSocket.OPEN) {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const base64 = canvas.toDataURL('image/jpeg').split(',')[1];
+                
+                ws.send(JSON.stringify({
+                    realtime_input: { data: base64 }
+                }));
+            }
+        }, 500); 
+    </script>
+</body>
+</html>
