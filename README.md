@@ -16,4 +16,4 @@
 ## Current Issues (Debug Status)
 * **Goal:** Connecting to Gemini and OBS to automate hype.
 * **Status:** OBS connects successfully. Gemini connects, but debug output is missing/silent.
-* **To Reproduce:** Run the server and trigger [explain what action triggers the issue].
+* **To Reproduce:** Run the server and trigger the action by coming closer to the camera.
