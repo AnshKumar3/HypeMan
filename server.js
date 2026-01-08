@@ -12,7 +12,7 @@ const GEMINI_URL = "wss://generativelanguage.googleapis.com/ws/google.ai.generat
 
 // 1. Connect to OBS
 console.log("Connecting to OBS...");
-obs.connect('ws://127.0.0.1:4455', process.env.OBS_PASSWORD)
+obs.connect('ws://localhost:4455', process.env.OBS_PASSWORD)
   .then(() => console.log("✅ Connected to OBS Studio"))
   .catch(err => console.error("❌ OBS Connection Failed:", err.message));
 
@@ -89,3 +89,6 @@ wss.on('connection', (clientWs) => {
 });
 
 console.log("HypeMan Server running on ws://localhost:8080");
+
+
+//Test
