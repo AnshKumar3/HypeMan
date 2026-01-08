@@ -2,7 +2,7 @@ import { WebSocketServer } from 'ws';
 import WebSocket from 'ws';
 import dotenv from 'dotenv';
 import OBSWebSocket from 'obs-websocket-js';
-import { DIRECTOR_PROMPT } from './director.js';
+import { DIRECTOR_PROMPT } from './prompts/director.js';
 
 dotenv.config();
 
@@ -28,7 +28,7 @@ wss.on('connection', (clientWs) => {
     // Send Initial Setup
     const setupMessage = {
       setup: {
-        model: "models/gemini-3-flash-preview", 
+        model: "models/gemini-2.0-flash-exp", 
         generation_config: {
           response_modalities: ["TEXT"],
           temperature: 0.2
@@ -42,6 +42,12 @@ wss.on('connection', (clientWs) => {
   // 3. Pipeline: Client -> Gemini
   clientWs.on('message', (data) => {
     const message = JSON.parse(data);
+    
+    // DEBUG LOG: Prove we are getting video
+    if (message.realtime_input) {
+        process.stdout.write("."); // Print a dot for every frame received
+    }
+
     if (message.realtime_input && geminiWs.readyState === WebSocket.OPEN) {
       geminiWs.send(JSON.stringify({
         realtime_input: {
@@ -59,7 +65,10 @@ wss.on('connection', (clientWs) => {
     const response = JSON.parse(data);
     const text = response.serverContent?.modelTurn?.parts?.[0]?.text;
     
+    // --- THIS IS THE PART YOU NEED TO CHANGE ---
     if (text) {
+      console.log("🤖 RAW GEMINI OUTPUT:", text); // <--- ADD THIS LINE HERE
+      
       try {
         const cmd = JSON.parse(text);
         console.log("🎬 DIRECTOR COMMAND:", cmd.action, cmd.name || cmd.file);
@@ -69,9 +78,11 @@ wss.on('connection', (clientWs) => {
             await obs.call('SetCurrentProgramScene', { sceneName: cmd.name });
         }
       } catch (e) {
-        // Ignore non-JSON chatter
+        // If it's not JSON, it will print this error
+        console.log("❌ Gemini sent text, but not JSON:", e.message);
       }
     }
+    // -------------------------------------------
   });
 
   clientWs.on('close', () => geminiWs.close());
